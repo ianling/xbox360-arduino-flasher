@@ -1,8 +1,9 @@
-# xbox360-rpi-flasher
-XBox 360 NAND reader/writer for Raspberry Pi
+# xbox360-arduino-flasher
+XBox 360 NAND reader/writer for Arduino
 
-Based on the great work of G33KatWork: https://github.com/G33KatWork/XBox-360-AVR-flasher
+Based on:
 
-Unfortunately, this experiment failed, reading on Pi Zero is too unreliable for me to even start coding writing routines.
+* G33KatWork: https://github.com/G33KatWork/XBox-360-AVR-flasher 
+* walczakp: https://github.com/walczakp/xbox360-rpi-flasher
 
-EDIT 2020-04-18: After edits of Ancient123, this can read NAND quite consistently on RPi 4
+See XSPI.h for pin assignments. Dumps NAND to serial at 115200bps (8N1).

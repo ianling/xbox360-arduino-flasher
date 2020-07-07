@@ -1,6 +1,7 @@
 #ifndef _XNAND_H_
 #define _XNAND_H_
 
+#include "Arduino.h"
 #include <inttypes.h>
 
 void XNAND_ClearStatus(void);

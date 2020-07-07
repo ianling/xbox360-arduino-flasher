@@ -1,40 +1,14 @@
 #include "XSPI.h"
+#include "unpack.h"
 
 uint8_t IN_FLASHMODE = 0;
-int SPI_DEVICE;
-
-void XSPI_Init(void) {
-  if (gpioInitialise() < 0){
-    printf("Couldn't initialize GPIO\n");
-    exit(-1);
-  }
-
-  SPI_DEVICE = spiOpen(0,50000,0x00);
-  if (SPI_DEVICE < 0){
-    printf("Couldn't initialize SPI\n");
-    exit(-1);
-  }
-
-  PINOUT(EJ);
-  PINOUT(XX);
-  PINOUT(SS);
-  PINOUT(SCK);
-  PINOUT(MOSI);
-  PININ(MISO);
-
-  PINHIGH(EJ);
-  PINHIGH(SS);
-  PINHIGH(XX);
-  PINHIGH(SCK);
-  PINLOW(MOSI);
-}
 
 void XSPI_Shutdown(void) {
   PINHIGH(SS);
   PINLOW(XX);
   PINLOW(EJ);
 
-  gpioDelay(50000);
+  delay(50);
 
   PINHIGH(EJ);
 }
@@ -42,17 +16,17 @@ void XSPI_Shutdown(void) {
 void XSPI_EnterFlashmode(void) {
   PINLOW(XX);
 
-  gpioDelay(50000);
+  delay(50);
 
   PINLOW(SS);
   PINLOW(EJ);
 
-  gpioDelay(50000);
+  delay(50);
 
   PINHIGH(XX);
   PINHIGH(EJ);
 
-  gpioDelay(50000);
+  delay(50);
 
   PINLOW(SS);
   IN_FLASHMODE = 1;
@@ -63,7 +37,7 @@ void XSPI_LeaveFlashmode(uint8_t force) {
     PINHIGH(SS);
     PINLOW(EJ);
 
-    gpioDelay(50000);
+    delay(50);
 
     PINLOW(XX);
     PINHIGH(EJ);
@@ -72,25 +46,31 @@ void XSPI_LeaveFlashmode(uint8_t force) {
   }
 }
 
-void XSPI_Read(uint8_t reg, uint8_t *buf) {
+uint32_t XSPI_Read(uint8_t reg) {
+  uint8_t buff[4];
+  uint32_t unpacked;
+  
   PINLOW(SS);
-  gpioDelay(2);
+  delayMicroseconds(2);
 
   XSPI_PutByte((reg << 2) | 1);
   XSPI_PutByte(0xFF);
-  *buf++ = XSPI_FetchByte();
-  *buf++ = XSPI_FetchByte();
-  *buf++ = XSPI_FetchByte();
-  *buf++ = XSPI_FetchByte();
+  buff[0] = XSPI_FetchByte();
+  buff[1] = XSPI_FetchByte();
+  buff[2] = XSPI_FetchByte();
+  buff[3] = XSPI_FetchByte();
 
   PINHIGH(SS);
+
+  unpacked = unpack_uint32_le(buff);
+  return 
 }
 
 uint16_t XSPI_ReadWord(uint8_t reg) {
   uint16_t res;
 
   PINLOW(SS);
-  gpioDelay(2);
+  delayMicroseconds(2);
 
   XSPI_PutByte((reg << 2) | 1);
   XSPI_PutByte(0xFF);
@@ -107,7 +87,7 @@ uint8_t XSPI_ReadByte(uint8_t reg) {
   uint8_t res;
 
   PINLOW(SS);
-  gpioDelay(2);
+  delayMicroseconds(2);
 
   XSPI_PutByte((reg << 2) | 1);
   XSPI_PutByte(0xFF);
@@ -121,7 +101,7 @@ uint8_t XSPI_ReadByte(uint8_t reg) {
 
 void XSPI_Write(uint8_t reg, uint8_t *buf) {
   PINLOW(SS);
-  gpioDelay(2);
+  delayMicroseconds(2);
 
   XSPI_PutByte((reg << 2) | 2);
   XSPI_PutByte(*buf++);
@@ -156,14 +136,11 @@ uint8_t XSPI_FetchByte() {
     in |= PINGET(MISO) ? (1 << i) : 0x00;
     PINLOW(SCK);
   }
+  // write hex byte to serial
+  char buff[4];
+  sprintf(buff, "%02x\n", in);
+  Serial.write(buff);
   return in;
-  // uint8_t in = 0;
-  // int check = spiRead(SPI_DEVICE, &in, 1);
-  // if(1 == check){
-  //   return in;
-  // }
-  // printf("spiRead Error: %i\n",check );
-  // return 0x00;
 }
 
 void XSPI_PutByte(uint8_t out) {
@@ -176,8 +153,4 @@ void XSPI_PutByte(uint8_t out) {
     PINHIGH(SCK);
     PINLOW(SCK);
   }
-  // int check = spiWrite(SPI_DEVICE, &out, 1);
-  // if(1 != check){
-  //   printf("spiRead Error: %i\n",check );
-  // }
 }

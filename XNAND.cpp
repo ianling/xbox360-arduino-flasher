@@ -12,9 +12,10 @@ uint16_t XNAND_GetStatus() { return XSPI_ReadWord(0x04); }
 
 uint8_t XNAND_WaitReady(uint16_t timeout) {
   do {
-    if (!(XSPI_ReadByte(0x04) & 0x01))
+    if (!(XSPI_ReadByte(0x04) & 0x01)) {
       return 1;
-    gpioDelay(10000);
+    }
+    delay(10);
   } while (timeout--);
 
   printf("Delay on WaitReady reached\n");
@@ -68,11 +69,10 @@ uint16_t XNAND_StartRead(uint32_t blockNum) {
   return res;
 }
 
-void XNAND_ReadFillBuffer(uint8_t *buf, uint8_t wordCount) {
+void XNAND_ReadWords(uint8_t wordCount) {
   while (wordCount--) {
     XSPI_Write0(0x08);
-    XSPI_Read(0x10, buf);
-    buf += 4;
+    XSPI_Read(0x10);
   }
 }
 

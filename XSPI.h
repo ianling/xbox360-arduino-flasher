@@ -1,31 +1,27 @@
 #ifndef _XSPI_H_
 #define _XSPI_H_
 
+#include "Arduino.h"
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <pigpio.h>
 
-#define EJ 24   // Eject
-#define XX 23   // Xbox Magic
-#define SS 26   // Chip Select
-#define SCK 11  // Serial Clock
-#define MOSI 10 // Master out Slave in
-#define MISO 9  // Master in Slave out
+#define EJ 8      // Eject
+#define XX 9      // Xbox Magic
+#define SS 10     // Chip Select
+#define MOSI 11   // Master out Slave in
+#define MISO 12   // Master in Slave out
+#define SCK 13    // Serial Clock
 
-#define PINOUT(PIN) gpioSetMode(PIN, PI_OUTPUT)
-#define PININ(PIN)                 \
-gpioSetPullUpDown(PIN, PI_PUD_UP); \
-gpioSetMode(PIN, PI_INPUT)
+#define PINOUT(PIN) pinMode(PIN, OUTPUT)
+#define PININ(PIN)  pinMode(PIN, INPUT_PULLUP)
 
-#define PINHIGH(PIN) gpioWrite(PIN, 1)
-#define PINLOW(PIN) gpioWrite(PIN, 0)
+#define PINHIGH(PIN) digitalWrite(PIN, 1)
+#define PINLOW(PIN) digitalWrite(PIN, 0)
 
-#define PINGET(PIN) gpioRead(PIN)
+#define PINGET(PIN) digitalRead(PIN)
 
 #define _delay_ms(MS) delay(MS)
-
-void XSPI_Init(void);
 
 void XSPI_Powerup(void);
 void XSPI_Shutdown(void);
@@ -33,7 +29,7 @@ void XSPI_Shutdown(void);
 void XSPI_EnterFlashmode(void);
 void XSPI_LeaveFlashmode(uint8_t force);
 
-void XSPI_Read(uint8_t reg, uint8_t *buf);
+uint32_t XSPI_Read(uint8_t reg);
 uint16_t XSPI_ReadWord(uint8_t reg);
 uint8_t XSPI_ReadByte(uint8_t reg);
 
