@@ -139,10 +139,8 @@ uint8_t XSPI_FetchByte() {
     in |= PINGET(MISO) ? (1 << i) : 0x00;
     PINLOW(SCK);
   }
-  // write hex byte to serial
-  char buff[4];
-  sprintf(buff, "%02x\n", in);
-  Serial.write(buff);
+  // write byte to serial
+  Serial.write(in);
   return in;
 }
 
