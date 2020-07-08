@@ -11,7 +11,7 @@ uint8_t XNAND_WaitReady(uint16_t timeout);
 uint16_t XNAND_Erase(uint32_t blockNum);
 
 uint16_t XNAND_StartRead(uint32_t blockNum);
-void XNAND_ReadFillBuffer(uint8_t *buf, uint8_t wordCount);
+void XNAND_ReadWords(uint8_t wordCount);
 
 void XNAND_StartWrite(void);
 void XNAND_WriteProcess(uint8_t *buf, uint8_t wordCount);

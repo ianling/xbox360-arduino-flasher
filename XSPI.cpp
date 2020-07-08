@@ -1,5 +1,4 @@
 #include "XSPI.h"
-#include "unpack.h"
 
 uint8_t IN_FLASHMODE = 0;
 
@@ -46,9 +45,9 @@ void XSPI_LeaveFlashmode(uint8_t force) {
   }
 }
 
-uint32_t XSPI_Read(uint8_t reg) {
-  uint8_t buff[4];
-  uint32_t unpacked;
+uint8_t* XSPI_Read(uint8_t reg) {
+  // returns 4 uint8_t's
+  uint8_t* buff = new uint8_t[4];
   
   PINLOW(SS);
   delayMicroseconds(2);
@@ -62,8 +61,12 @@ uint32_t XSPI_Read(uint8_t reg) {
 
   PINHIGH(SS);
 
-  unpacked = unpack_uint32_le(buff);
-  return 
+  return buff;
+}
+
+void XSPI_BlindRead(uint8_t reg) {
+  uint8_t* buff = XSPI_Read(reg);
+  delete buff;
 }
 
 uint16_t XSPI_ReadWord(uint8_t reg) {

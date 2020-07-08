@@ -29,9 +29,10 @@ void XSPI_Shutdown(void);
 void XSPI_EnterFlashmode(void);
 void XSPI_LeaveFlashmode(uint8_t force);
 
-uint32_t XSPI_Read(uint8_t reg);
+uint8_t* XSPI_Read(uint8_t reg);
 uint16_t XSPI_ReadWord(uint8_t reg);
 uint8_t XSPI_ReadByte(uint8_t reg);
+void XSPI_BlindRead(uint8_t reg);
 
 void XSPI_Write(uint8_t reg, uint8_t *buf);
 void XSPI_WriteByte(uint8_t reg, uint8_t byte);

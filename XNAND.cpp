@@ -3,9 +3,11 @@
 #include <stdio.h>
 
 void XNAND_ClearStatus() {
-  uint8_t tmp[4];
-  XSPI_Read(0x04, tmp);
+  uint8_t* tmp;
+  tmp = XSPI_Read(0x04);
   XSPI_Write(0x04, tmp);
+  // cleanup
+  delete tmp;
 }
 
 uint16_t XNAND_GetStatus() { return XSPI_ReadWord(0x04); }
@@ -23,13 +25,15 @@ uint8_t XNAND_WaitReady(uint16_t timeout) {
 }
 
 uint16_t XNAND_Erase(uint32_t blockNum) {
-  uint8_t tmp[4];
+  uint8_t* tmp;
 
   XNAND_ClearStatus();
 
-  XSPI_Read(0, tmp);
+  tmp = XSPI_Read(0);
   tmp[0] |= 0x08;
   XSPI_Write(0, tmp);
+  delete tmp;
+  tmp = NULL;
 
   XSPI_WriteDword(0x0C, blockNum << 9);
 
@@ -72,7 +76,7 @@ uint16_t XNAND_StartRead(uint32_t blockNum) {
 void XNAND_ReadWords(uint8_t wordCount) {
   while (wordCount--) {
     XSPI_Write0(0x08);
-    XSPI_Read(0x10);
+    XSPI_BlindRead(0x10);
   }
 }
 
