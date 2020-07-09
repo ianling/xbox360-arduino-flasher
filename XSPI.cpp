@@ -50,7 +50,7 @@ uint8_t* XSPI_Read(uint8_t reg) {
   uint8_t* buff = new uint8_t[4];
   
   PINLOW(SS);
-  delayMicroseconds(2);
+  //delayMicroseconds(2);
 
   XSPI_PutByte((reg << 2) | 1);
   XSPI_PutByte(0xFF);
@@ -64,16 +64,11 @@ uint8_t* XSPI_Read(uint8_t reg) {
   return buff;
 }
 
-void XSPI_BlindRead(uint8_t reg) {
-  uint8_t* buff = XSPI_Read(reg);
-  delete buff;
-}
-
 uint16_t XSPI_ReadWord(uint8_t reg) {
   uint16_t res;
 
   PINLOW(SS);
-  delayMicroseconds(2);
+  //delayMicroseconds(2);
 
   XSPI_PutByte((reg << 2) | 1);
   XSPI_PutByte(0xFF);
@@ -90,7 +85,7 @@ uint8_t XSPI_ReadByte(uint8_t reg) {
   uint8_t res;
 
   PINLOW(SS);
-  delayMicroseconds(2);
+  //delayMicroseconds(2);
 
   XSPI_PutByte((reg << 2) | 1);
   XSPI_PutByte(0xFF);
@@ -104,7 +99,7 @@ uint8_t XSPI_ReadByte(uint8_t reg) {
 
 void XSPI_Write(uint8_t reg, uint8_t *buf) {
   PINLOW(SS);
-  delayMicroseconds(2);
+  //delayMicroseconds(2);
 
   XSPI_PutByte((reg << 2) | 2);
   XSPI_PutByte(*buf++);
@@ -139,8 +134,6 @@ uint8_t XSPI_FetchByte() {
     in |= PINGET(MISO) ? (1 << i) : 0x00;
     PINLOW(SCK);
   }
-  // write byte to serial
-  Serial.write(in);
   return in;
 }
 

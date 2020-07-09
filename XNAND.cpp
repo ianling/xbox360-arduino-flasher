@@ -74,9 +74,12 @@ uint16_t XNAND_StartRead(uint32_t blockNum) {
 }
 
 void XNAND_ReadWords(uint8_t wordCount) {
+  uint8_t* buff;
   while (wordCount--) {
     XSPI_Write0(0x08);
-    XSPI_BlindRead(0x10);
+    buff = XSPI_Read(0x10);
+    Serial.write(buff, 4);
+    delete buff;
   }
 }
 
