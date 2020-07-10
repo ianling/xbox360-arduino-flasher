@@ -45,7 +45,7 @@ if argv[1] == "d":
             print(f"\r                                                         \r{percent_done}% -- {i // time_elapsed}Bps", end="")
 
     end_time = time()
-    print(f"Finished at {end_time}")
+    print(f"\nFinished at {end_time}")
     f.close()
 
 # flash
