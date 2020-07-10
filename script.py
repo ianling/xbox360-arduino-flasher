@@ -17,7 +17,6 @@ BAUD_RATE = 115200
 DUMP_COMMAND = b"d"
 FLASH_COMMAND = b"f"
 FLASH_CONFIG_COMMAND = b"c"
-TEST_COMMAND = b"t"
 OUT_FILE = "dump.bin"
 
 
@@ -61,11 +60,3 @@ elif argv[1] == "c":
     while len(buffer) < expected_length:
         buffer += arduino.read(BAUD_RATE // 8)
     print(repr(buffer))
-
-# test raw serial mode
-elif argv[1] == "t":
-    arduino.write(TEST_COMMAND)
-    response = arduino.read()
-    print(repr(response))
-
-arduino.close()

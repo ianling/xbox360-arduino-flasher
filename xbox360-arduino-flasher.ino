@@ -6,18 +6,18 @@
 
 void setup() {
   Serial.begin(115200);
-  PINOUT(EJ);
-  PINOUT(XX);
-  PINOUT(SS);
-  PINOUT(SCK);
-  PINOUT(MOSI);
-  PININ(MISO);
+  pinMode(EJ, OUTPUT);
+  pinMode(XX, OUTPUT);
+  pinMode(SS, OUTPUT);
+  pinMode(SCK, OUTPUT);
+  pinMode(MOSI, OUTPUT);
+  pinMode(MISO, INPUT_PULLUP);
 
-  PINHIGH(EJ);
-  PINHIGH(SS);
-  PINHIGH(XX);
-  PINHIGH(SCK);
-  PINLOW(MOSI);
+  digitalWriteFast(EJ, 1);
+  digitalWriteFast(SS, 1);
+  digitalWriteFast(XX, 1);
+  digitalWriteFast(SCK, 1);
+  digitalWriteFast(MOSI, 0);
 }
 
 void readFlashConfig() {
@@ -91,10 +91,6 @@ void loop() {
       break;
     case 'c': // check flash config
       readFlashConfig();
-      break;
-    case 't': // test raw mode
-      uint8_t in = 10;
-      Serial.write(10);  // write a newline character
       break;
   }
 }

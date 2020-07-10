@@ -2,6 +2,7 @@
 #define _XSPI_H_
 
 #include "Arduino.h"
+#include "digitalWriteFast.h"
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,16 +13,6 @@
 #define MOSI 11   // Master out Slave in
 #define MISO 12   // Master in Slave out
 #define SCK 13    // Serial Clock
-
-#define PINOUT(PIN) pinMode(PIN, OUTPUT)
-#define PININ(PIN)  pinMode(PIN, INPUT_PULLUP)
-
-#define PINHIGH(PIN) digitalWrite(PIN, 1)
-#define PINLOW(PIN) digitalWrite(PIN, 0)
-
-#define PINGET(PIN) digitalRead(PIN)
-
-#define _delay_ms(MS) delay(MS)
 
 void XSPI_Powerup(void);
 void XSPI_Shutdown(void);
