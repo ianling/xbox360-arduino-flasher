@@ -6,8 +6,9 @@ Dumps xbox360 NAND via an Arduino
 
 """
 import serial
+import struct
 from math import floor
-from sys import argv
+from sys import argv, exit
 from time import time
 
 
@@ -50,7 +51,41 @@ if argv[1] == "d":
 
 # flash
 elif argv[1] == "f":
-    pass  # TODO
+    arduino.write(FLASH_COMMAND)
+    # send length of file to write
+    f = open(argv[2], 'rb')
+    data = f.read()
+    f.close()
+    arduino.write(struct.pack(">I", len(data)))
+    # read back length from arduino
+    expected_length = 11  # max length of a uint32_t cast to a string is 10 characters 
+    buffer = b""
+    while len(buffer) < expected_length:
+        if len(buffer) > 0:
+            print(repr(buffer))
+        buffer += arduino.read(BAUD_RATE // 8)
+    # throw out everything after the null byte (arduino sent a null terminated string)
+    buffer = buffer[0:buffer.index(b"\x00")]
+    if int(buffer) != len(data):
+        print("Arduino sent back the wrong data length, aborting. No data was written, NAND is unaltered.")
+        exit(1)
+    print("Handshake successful, waiting for Arduino to request data...")
+    
+    # send data to arduino 1 page (528 bytes) at a time
+    i = 0
+    arduino_ready_to_receive = False
+    while i < len(data):
+        # wait for arduino to tell us it's ready to receive data
+        while not arduino_ready_to_receive:
+            if arduino.read(BAUD_RATE // 8) == b"\x00":
+                arduino_ready_to_receive = True
+        print(f"sending data[{i} : {i + 528}]...")
+        data_to_send = data[i:i + 528]
+        arduino.write(data_to_send)
+        
+        i += 528
+        arduino_ready_to_receive = False
+
 
 # check flash config
 elif argv[1] == "c":
