@@ -105,10 +105,12 @@ void flashNand() {
   len /= 4;  // we write in words, not individual bytes
   totalPages = ceil(len / wordsPerPage);
 
-  XNAND_Erase(currentPage);  // TODO: do we need to call this for each page? or only once?
   
   uint8_t serialBuffer[bytesPerPage];
   while(currentPage < totalPages) {
+      if(currentPage % 32 == 0) {
+        XNAND_Erase(currentPage);  // erase after every 32 pages
+      }
       XNAND_StartWrite();
       // tell host machine we're ready to receive a page of data
       Serial.write((uint8_t)0);
