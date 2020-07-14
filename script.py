@@ -56,7 +56,8 @@ elif argv[1] == "f":
     f = open(argv[2], 'rb')
     data = f.read()
     f.close()
-    arduino.write(struct.pack(">I", len(data)))
+    file_length = len(data)
+    arduino.write(struct.pack(">I", file_length))
     # read back length from arduino
     expected_length = 11  # max length of a uint32_t cast to a string is 10 characters 
     buffer = b""
@@ -66,25 +67,36 @@ elif argv[1] == "f":
         buffer += arduino.read(BAUD_RATE // 8)
     # throw out everything after the null byte (arduino sent a null terminated string)
     buffer = buffer[0:buffer.index(b"\x00")]
-    if int(buffer) != len(data):
+    if int(buffer) != file_length:
         print("Arduino sent back the wrong data length, aborting. No data was written, NAND is unaltered.")
         exit(1)
     print("Handshake successful, waiting for Arduino to request data...")
     
     # send data to arduino 1 page (528 bytes) at a time
     i = 0
+    percent_done = 0
     arduino_ready_to_receive = False
-    while i < len(data):
+    start_time = time()
+    print(f"Started at {start_time}")
+    while i < file_length:
         # wait for arduino to tell us it's ready to receive data
         while not arduino_ready_to_receive:
             if arduino.read(BAUD_RATE // 8) == b"\x00":
                 arduino_ready_to_receive = True
-        print(f"sending data[{i} : {i + 528}]...")
         data_to_send = data[i:i + 528]
         arduino.write(data_to_send)
         
         i += 528
         arduino_ready_to_receive = False
+        
+        previous_percent_done = percent_done
+        percent_done = floor(i/file_length*100)
+        if percent_done - previous_percent_done > 0:
+            time_elapsed = time() - start_time
+            print(f"\r                                                         \r{percent_done}% -- {i // time_elapsed}Bps", end="")
+    
+    end_time = time()
+    print(f"\nFinished at {end_time}")
 
 
 # check flash config
