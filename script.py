@@ -14,27 +14,33 @@ from time import time
 
 # globals
 SERIAL_DEVICE = "/dev/ttyACM0"
-BAUD_RATE = 115200
+BAUD_RATE = 460800
 DUMP_COMMAND = b"d"
 FLASH_COMMAND = b"f"
 FLASH_CONFIG_COMMAND = b"c"
 OUT_FILE = "dump.bin"
 
 
-arduino = serial.Serial(SERIAL_DEVICE, BAUD_RATE, timeout=0)
+def read_file(path):
+    f = open(path, 'rb')
+    data = f.read()
+    f.close()
+    return data
 
 
 # dump
 if argv[1] == "d":
-    f = open("dump.bin", "wb")
+    arduino = serial.Serial(SERIAL_DEVICE, BAUD_RATE, timeout=0)
+    if len(argv) > 2:
+        OUT_FILE = argv[2]
+    f = open(OUT_FILE, "wb")
+    
     arduino.write(DUMP_COMMAND)
     expected_length = 17301504
     percent_done = 0
     i = 0
-
     start_time = time()
     print(f"Started at {start_time}")
-
     while i < expected_length:
         data = arduino.read(BAUD_RATE // 8)
         i += len(data)
@@ -46,16 +52,15 @@ if argv[1] == "d":
             print(f"\r                                                         \r{percent_done}% -- {i // time_elapsed}Bps", end="")
 
     end_time = time()
-    print(f"\nFinished at {end_time}")
+    print(f"\nFinished at {end_time} (total: {end_time - start_time} seconds)")
     f.close()
 
 # flash
 elif argv[1] == "f":
+    arduino = serial.Serial(SERIAL_DEVICE, BAUD_RATE, timeout=0)
     arduino.write(FLASH_COMMAND)
     # send length of file to write
-    f = open(argv[2], 'rb')
-    data = f.read()
-    f.close()
+    data = read_file(argv[2])
     file_length = len(data)
     arduino.write(struct.pack(">I", file_length))
     # read back length from arduino
@@ -96,14 +101,28 @@ elif argv[1] == "f":
             print(f"\r                                                         \r{percent_done}% -- {i // time_elapsed}Bps", end="")
     
     end_time = time()
-    print(f"\nFinished at {end_time}")
+    print(f"\nFinished at {end_time} (total: {end_time - start_time} seconds)")
 
 
 # check flash config
 elif argv[1] == "c":
+    arduino = serial.Serial(SERIAL_DEVICE, BAUD_RATE, timeout=0)
     arduino.write(FLASH_CONFIG_COMMAND)
     expected_length = 4  # flash config is 4 bytes long
     buffer = b""
     while len(buffer) < expected_length:
         buffer += arduino.read(BAUD_RATE // 8)
     print(repr(buffer))
+
+elif argv[1] == "v":
+    data1 = read_file(argv[2])
+    data2 = read_file(argv[3])
+    # truncate data1 and data2 so they're the same size
+    # this allows you to compare a dump to a Xell image, which is much smaller than a full NAND dump
+    data1 = data1[0:len(data2)]
+    data2 = data2[0:len(data1)]
+    
+    if data1 == data2:
+        print("Dumps are the same")
+    else:
+        print("Dumps are different")

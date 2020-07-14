@@ -79,6 +79,7 @@ void XNAND_ReadWords(uint8_t wordCount) {
     XSPI_Write0(0x08);
     buff = XSPI_Read(0x10);
     Serial.write(buff, 4);
+    Serial.send_now();
     delete buff;
   }
 }

@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(460800);
   Serial.setTimeout(10000);
   pinMode(EJ, OUTPUT);
   pinMode(XX, OUTPUT);

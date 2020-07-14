@@ -2,7 +2,7 @@
 #define _XSPI_H_
 
 #include "Arduino.h"
-#include "digitalWriteFast.h"
+//#include "digitalWriteFast.h"
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
